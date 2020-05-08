@@ -1,0 +1,88 @@
+#!/bin/sh
+while [ "$#" -gt 0 ]; do
+  case $1 in
+    --help)
+      printf "\n\t--help\n"
+      printf "\t--profile <aws-profile>\n"
+      printf "\t--secret <secret-id>\n"
+      printf "\t--get, from secrets manager to json\n"
+      printf "\t--put, from json to secrets manager\n"
+      printf "\n\tAuthor: Sabato Luca Guadagno <o0th@pm.me>\n"
+      exit 0
+      ;;
+    --secret)
+      secret="$2"
+      shift
+      shift
+      ;;
+    --profile)
+      profile="$2"
+      shift
+      shift
+      ;;
+    --get)
+      get="true"
+      shift
+      ;;
+    --put)
+      put="true"
+      shift
+      ;;
+    *)
+      shift
+      ;;
+  esac
+done
+
+if ! $(type aws > /dev/null); then
+  printf "\n\taws-cli is required\n"
+  exit 1
+fi
+
+if ! $(type jq > /dev/null); then
+  printf "\n\tjq is required\n"
+  exit 1
+fi
+
+if [ -z "$secret" ]; then
+  printf "\n\t--secret <secret-id> is required\n"
+  exit 1
+fi
+
+if [ -z "$profile" ]; then
+  profile="default"
+fi
+
+if [ -z "$get" ] && [ -z "$put" ]; then
+  printf "\n\t--get or --put is required\n"
+  exit 1
+fi
+
+if [ ! -z "$get" ]; then
+  secrets=$(aws secretsmanager get-secret-value \
+    --profile ${profile} --secret-id ${secret});
+  if [ "$?" -eq 0 ]; then
+    printf "${secrets}" | jq -r .SecretString | jq > ${secret}.json
+    printf "\n\tSecrets manager => ${secret}.json\n"
+    exit 0
+  else
+    exit 1
+  fi
+fi
+
+if [ ! -z "$put" ]; then
+  if [ ! -f "${PWD}/${secret}.json" ]; then
+    printf "\n\t${secret}.json does not exist\n"
+    exit 1
+  fi
+  aws secretsmanager put-secret-value \
+    --profile ${profile} \
+    --secret-id ${secret} \
+    --secret-string $(jq -cM < ${secret}.json)
+  if [ "$?" -eq 0 ]; then
+    echo "\n\t${secret}.json => Secrets manager\n"
+    exit 0
+  else
+    exit 1
+  fi
+fi
