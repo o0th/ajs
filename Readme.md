@@ -7,13 +7,13 @@ sudo install ajs /usr/local/bin
 
 ### Usage
 
-Save secret from aws secretsmanager to a local json file (`some-secret.json`)
+Save secret from aws secretsmanager to a local json file (`aws-secret-name.json`)
 
 ```bash
 ajs --secret aws-secret-name --get
 ```
 
-Update secret in aws secretsmanager from a local json file (`some-secret.json`)
+Update secret in aws secretsmanager from a local json file (`aws-secret-name.json`)
 
 ```bash
 ajs --secret aws-secret-name --put
