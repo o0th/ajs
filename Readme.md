@@ -1,12 +1,16 @@
+## ajs
+
 <a href="https://github.com/standard/standard">
   <img src="https://img.shields.io/badge/ajs-0.0.1-green.svg?style=for-the-badge" alt="Standard">
 </a>
 <a href="/License.md">
   <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License">
 </a>
-<a href="https://www.buymeacoffee.com/o0th" target="_blank">
-  <img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="28">
-</a>
+
+`ajs` is an opensource shell script that save/update secrets from AWS Secrets
+Manager via `.json` files. It use [jq](https://github.com/stedolan/jq) for
+json file manipulation and [aws cli](https://aws.amazon.com/cli/) for the AWS
+comunication.
 
 ### Installation
 
@@ -29,8 +33,20 @@ Update secret in aws secretsmanager from a local json file (`aws-secret-name.jso
 ajs --secret aws-secret-name --put
 ```
 
-Is it possible to specify aws profile
+Is it possible to specify an aws profile
 
 ```bash
 ajs --profile aws-profile --secret aws-secret-name --get
 ```
+
+### Contribute
+
+`ajs` is an opensource project that runs on donations. If you want to
+contribute feel free to open an issue or a pull request. If you want to 
+say thank you and/or support the active development add a :star: to the
+project or donate a :coffee:
+
+<a href="https://www.buymeacoffee.com/o0th">
+  <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=o0th&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff">
+</a>
+
