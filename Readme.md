@@ -1,11 +1,13 @@
 ## ajs
 
-<a href="https://github.com/standard/standard">
-  <img src="https://img.shields.io/badge/ajs-0.0.1-green.svg?style=for-the-badge" alt="Standard">
-</a>
-<a href="/License.md">
-  <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License">
-</a>
+<p>
+  <a href="https://github.com/standard/standard">
+    <img src="https://img.shields.io/badge/Version-0.0.1-green.svg?style=for-the-badge" alt="Version">
+  </a>
+  <a href="/License.md">
+    <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License">
+  </a>
+</p>
 
 `ajs` is an opensource shell script that save/update secrets from AWS Secrets
 Manager via `.json` files. It use [jq](https://github.com/stedolan/jq) for
