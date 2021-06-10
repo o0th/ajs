@@ -2,7 +2,7 @@
 
 <p>
   <a href="https://github.com/standard/standard">
-    <img src="https://img.shields.io/badge/Version-0.0.2-green.svg?style=for-the-badge" alt="Version">
+    <img src="https://img.shields.io/badge/Version-0.1.0-green.svg?style=for-the-badge" alt="Version">
   </a>
   <a href="/License.md">
     <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License">
@@ -26,19 +26,19 @@ sudo install ajs /usr/local/bin
 Save secret from aws secretsmanager to a local json file (`aws-secret-name.json`)
 
 ```bash
-ajs --secret aws-secret-name --get
+ajs get aws-secret-name
 ```
 
 Update secret in aws secretsmanager from a local json file (`aws-secret-name.json`)
 
 ```bash
-ajs --secret aws-secret-name --put
+ajs put aws-secret-name
 ```
 
-Is it possible to specify an aws profile
+Is it possible to append any aws parameters
 
 ```bash
-ajs --profile aws-profile --secret aws-secret-name --get
+ajs get aws-secret-name --profile default --region eu-west-1
 ```
 
 ### Contribute

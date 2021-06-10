@@ -1,95 +1,118 @@
 #!/bin/sh
 
-while [ "$#" -gt 0 ]; do
-  case $1 in
-    --help)
-      echo "ajs"
-      echo "  --help"
-      echo "  --version"
-      echo "  --profile <aws-profile>"
-      echo "  --secret <secret-id>"
-      echo "  --get, from secrets manager to json"
-      echo "  --put, from json to secrets manager"
-      echo "Author: Sabato Luca Guadagno <o0th@pm.me>"
-      exit 0
-      ;;
-    --version)
-      echo "ajs version 0.0.2"
-      exit 0
-      ;;
-    --secret)
-      secret="$2"
-      shift
-      shift
-      ;;
-    --profile)
-      profile="$2"
-      shift
-      shift
-      ;;
-    --get)
-      get="true"
-      shift
-      ;;
-    --put)
-      put="true"
-      shift
-      ;;
-    *)
-      shift
-      ;;
-  esac
-done
+#
+# Check for aws
+#
 
 if ! $(type aws > /dev/null); then
-  echo "aws-cli is required"
+  echo -e "\najs: missing aws-cli (https://aws.amazon.com/cli)"
   exit 1
 fi
+
+#
+# Check for jq
+#
 
 if ! $(type jq > /dev/null); then
-  echo "jq is required"
+  echo -e "\najs: missing jq (https://stedolan.github.io/jq)"
   exit 1
 fi
 
-if [ -z "$secret" ]; then
-  echo "--secret <secret-id> is required"
+#
+# help funcion
+#
+
+help() {
+  echo -e "\nusage: ajs <action> [paramenters]"
+  echo -e "\nAvaliable actions"
+  echo -e "   help                               show this message"
+  echo -e "   version                            show script version"
+  echo -e "   get <secret> [aws-parameters...]   get secret from secretsmanager to json file"
+  echo -e "   put <secret> [aws-parameters...]   put secret from json file to secretsmanager"
+  echo -e "Example: ajs get example --region eu-west-1"
+}
+
+#
+# Getting first argument (lowercase)
+#
+
+action=${1,,}; shift
+
+#
+# Validate first argument
+#
+
+case ${action} in
+  (-v|--version|version)
+    echo -e "\najs/0.1.0"
+    exit 0
+    ;;
+  (-h|--help|help)
+    help
+    exit 0
+    ;;
+  (get|put)
+    ;;
+  (*)
+    help
+    echo -e "\nOops: invalid action"
+    exit 1
+    ;;
+esac
+
+#
+# Check secret name for action get and put
+#
+
+secret=${1}; shift
+
+if [ -z ${secret} ]; then
+  help
+  echo -e "\nOops: you should specify a secret name"
   exit 1
 fi
 
-if [ -z "$profile" ]; then
-  profile="default"
-fi
+#
+# AWS arguments
+#
 
-if [ -z "$get" ] && [ -z "$put" ]; then
-  echo "--get or --put is required"
-  exit 1
-fi
+parameters=${@}
 
-if [ ! -z "$get" ]; then
-  secrets=$(aws secretsmanager get-secret-value \
-    --profile ${profile} --secret-id ${secret})
+#
+# Get secret action
+#
+
+if [ ${action} = "get" ]; then
+
+  secrets=$(aws secretsmanager get-secret-value --secret-id ${secret} ${parameters})
+
   if [ "$?" -eq 0 ]; then
     echo "${secrets}" | jq -r .SecretString | jq > ${secret}.json
-    echo "Secrets manager => ${secret}.json"
+    echo -e "\nSecrets manager => ${secret}.json"
     exit 0
   else
     exit 1
   fi
 fi
 
-if [ ! -z "$put" ]; then
+#
+# Put secret action
+#
+
+if [ ${action} = "put" ]; then
   if [ ! -f "${PWD}/${secret}.json" ]; then
-    echo "${secret}.json does not exist"
+    echo -e "\nOops: ${secret}.json does not exist"
     exit 1
   fi
-  aws secretsmanager put-secret-value \
-    --profile ${profile} \
-    --secret-id ${secret} \
-    --secret-string $(jq -cM < ${secret}.json)
+
+  aws secretsmanager put-secret-value --secret-id ${secret} \
+    --secret-string $(jq -cM < ${secret}.json) ${parameters}
+
   if [ "$?" -eq 0 ]; then
-    echo "${secret}.json => Secrets manager\n"
+    echo -e "\n${secret}.json => Secrets manager"
     exit 0
   else
     exit 1
   fi
 fi
+
